@@ -1,0 +1,14 @@
+{
+  "name": "radu_proiect",
+  "version": "0.0.0",
+  "authors": [
+    "Marian Banita <marianbanita@gmail.com>"
+  ],
+  "description": "proiect demo",
+  "license": "MIT",
+  "private": true,
+  "dependencies": {
+    "bootstrap-sass-official": "~3.3.4",
+    "fontawesome": "~4.3.0"
+  }
+}

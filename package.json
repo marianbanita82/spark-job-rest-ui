@@ -1,0 +1,23 @@
+{
+  "devDependencies": {
+    "gulp": "~3.8.11",
+    "gulp-notify": "~2.2.0",
+    "gulp-ruby-sass": "^0.7.1",
+    "gulp-bower": "0.0.10"
+  },
+  "name": "radu_proiect",
+  "version": "0.0.0",
+  "description": "ERROR: No README data found!",
+  "main": "gulpfile.js",
+  "dependencies": {
+    "gulp": "~3.8.11",
+    "gulp-notify": "~2.2.0",
+    "gulp-ruby-sass": "~1.0.1",
+    "gulp-bower": "~0.0.10"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "BSD-2-Clause"
+}
