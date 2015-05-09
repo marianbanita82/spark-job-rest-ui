@@ -45,15 +45,15 @@ $('#el').spin('flower', 'red');
 
   if (typeof exports == 'object') {
     // CommonJS
-    factory(require('jquery'), require('spin.js'))
+    factory(require('jquery'), require('spin.js'));
   }
   else if (typeof define == 'function' && define.amd) {
     // AMD, register as anonymous module
-    define(['jquery', 'spin'], factory)
+    define(['jquery', 'spin'], factory);
   }
   else {
     // Browser globals
-    if (!window.Spinner) throw new Error('Spin.js not present')
+    if (!window.Spinner) {throw new Error('Spin.js not present');}
     factory(window.jQuery, window.Spinner)
   }
 
@@ -74,7 +74,7 @@ $('#el').spin('flower', 'red');
           { color: color || $this.css('color') },
           $.fn.spin.presets[opts] || opts
         )
-        data.spinner = new Spinner(opts).spin(this)
+        data.spinner = new Spinner(opts).spin(this);
       }
     })
   }
@@ -100,6 +100,7 @@ var sparkJobTemplate = function () {
     var Self = this,
 
         ajaxLoader = $('#ajaxLoader'),
+        navTabs = $('#navTabs'),
 
         ctxTable = $('#contextsTable tbody'),
         addContextModal = $('#addContext'),
@@ -141,20 +142,23 @@ var sparkJobTemplate = function () {
     Self.addEvents = function() {
 
         // start contexts tab
-        Self.getAllContexts().done(function(data) {
-            var response = data.contexts,
-                output = '';
+        navTabs.find('a[aria-controls="contexts"]').on('click', function () {
+            Self.getAllContexts().done(function(data) {
+                var response = data.contexts,
+                    output = '';
 
-            for(var i = 0; i < response.length; i++) {
-                output += '<tr>' +
-                            '<td>' +  response[i].contextName + '</td>' +
-                            '<td>' +  response[i].sparkUiPort + '</td>' +
-                            '<td><a class="delete" data-context="'+ response[i].contextName +'"><span class="glyphicon glyphicon-trash" aria-hidden="true"></span></a></td>' +
-                        '</tr>';
-            }
+                for(var i = 0; i < response.length; i++) {
+                    output += '<tr>' +
+                                '<td>' +  response[i].contextName + '</td>' +
+                                '<td>' +  '<a href=' + Self.params.host + ':' + response[i].sparkUiPort + '>' + response[i].sparkUiPort + '</a>' + '</td>' +
+                                '<td><a class="delete" data-context="'+ response[i].contextName +'"><span class="glyphicon glyphicon-trash" aria-hidden="true"></span></a></td>' +
+                            '</tr>';
+                }
 
-            ctxTable.html(output);
+                ctxTable.html(output);
+            });
         });
+
 
         ctxTable.on('click','.delete', function() {
             var this_ = $(this),
@@ -162,6 +166,7 @@ var sparkJobTemplate = function () {
 
             Self.deleteContext(ctx).done(function(data) {
                 this_.closest('tr').remove();
+                Self.notifySuccess("Deleted context: " + ctx)
             });
 
         });
@@ -189,11 +194,12 @@ var sparkJobTemplate = function () {
 
                     output += '<tr>' +
                                 '<td>'+ response.contextName  +'</td>' +
-                                '<td>'+ response.sparkUiPort +'</td>' +
+                                '<td>' +  '<a href=' + Self.params.host + ':' + response.sparkUiPort + '>' + response.sparkUiPort + '</a>' + '</td>' +
                                 '<td><a class="delete" data-context="'+ response.contextName +'"><span class="glyphicon glyphicon-trash" aria-hidden="true"></span></a></td>' +
                             '</tr>';
 
                     ctxTable.prepend(output);
+                    Self.notifySuccess("Created context: " + response.contextName);
                 })
                 .fail(function(data) {
                     Self.notify(data.responseJSON.error);
@@ -279,6 +285,8 @@ var sparkJobTemplate = function () {
 
                 if(response.length) {
                     jarDropdownToggle.prop('disabled',false);
+                } else {
+                    jarDropdownToggle.prop('disabled',true);
                 }
 
                 for(var i = 0; i < response.length; i++) {
@@ -299,27 +307,30 @@ var sparkJobTemplate = function () {
 
 
         // start jobs tab
-        Self.getAllJobs().done(function(data) {
-            var response = data.jobs,
-                output = '',
-                result = '';
-
-            for(var i = 0; i < response.length; i++) {
-                if(response[i].status !== 'Running') {
-                    result = '<a class="details" data-result="'+ response[i].result +'"><span aria-hidden="true" class="glyphicon glyphicon-modal-window"></span></a>';
-                } else {
+        navTabs.find('a[aria-controls="jobs"]').on('click', function () {
+            Self.getAllJobs().done(function(data) {
+                var response = data.jobs,
+                    output = '',
                     result = '';
-                }
-                output += '<tr>' +
-                            '<td>' + response[i].jobId + '</td>' +
-                            '<td>' + response[i].contextName + '</td>' +
-                            '<td>' + response[i].status + '</td>' +
-                            '<td>' + result +'</td>' +
-                        '</tr>';
-            }
 
-            jobsTable.html(output);
+                for(var i = 0; i < response.length; i++) {
+                    if(response[i].status !== 'Running') {
+                        result = '<a class="details" data-result="'+ response[i].result +'"><span aria-hidden="true" class="glyphicon glyphicon-modal-window"></span></a>';
+                    } else {
+                        result = '';
+                    }
+                    output += '<tr>' +
+                                '<td>' + response[i].jobId + '</td>' +
+                                '<td>' + response[i].contextName + '</td>' +
+                                '<td>' + response[i].status + '</td>' +
+                                '<td>' + result +'</td>' +
+                            '</tr>';
+                }
+
+                jobsTable.html(output);
+            });
         });
+
 
         jobsTable.on('click','.details', function() {
             var this_ = $(this),
@@ -368,6 +379,7 @@ var sparkJobTemplate = function () {
                             '</tr>';
 
                     jobsTable.prepend(output);
+                    Self.notifyInfo("Started running job: " + response.jobId);
                 })
                 .fail(function(data) {
                     Self.notify(data.responseJSON.error);
@@ -437,27 +449,31 @@ var sparkJobTemplate = function () {
 
 
         // start jars tab
-        Self.getAllJars().done(function(data) {
-            var response = data.jars,
-                output = '';
+        navTabs.find('a[aria-controls="jars"]').on('click', function () {
+            Self.getAllJars().done(function(data) {
+                var response = data.jars,
+                    output = '';
 
-            for(var i = 0; i < response.length; i++) {
-                output += '<tr>' +
-                            '<td>' +  response[i].name + '</td>' +
-                            '<td>' +  response[i].size + '</td>' +
-                            '<td>' +  Self.convertTimestamp(response[i].timestamp) + '</td>' +
-                            '<td><a class="delete" data-job="'+ response[i].name +'"><span class="glyphicon glyphicon-trash" aria-hidden="true"></span></a></td>' +
-                        '</tr>';
-            }
+                for(var i = 0; i < response.length; i++) {
+                    output += '<tr>' +
+                                '<td>' +  response[i].name + '</td>' +
+                                '<td>' +  Self.computeJarSize(response[i].size) + '</td>' +
+                                '<td>' +  Self.convertTimestamp(response[i].timestamp) + '</td>' +
+                                '<td><a class="delete" data-jar="'+ response[i].name +'"><span class="glyphicon glyphicon-trash" aria-hidden="true"></span></a></td>' +
+                            '</tr>';
+                }
 
-            jarsTable.html(output);
+                jarsTable.html(output);
+            });
         });
+
 
         jarsTable.on('click','.delete', function() {
             var this_ = $(this),
                 ctx = this_.data('job');
 
             Self.deleteJar(ctx).done(function(data) {
+                Self.notifySuccess('Deleted jar: ' + ctx);
                 this_.closest('tr').remove();
             });
 
@@ -469,14 +485,33 @@ var sparkJobTemplate = function () {
             uploadUrl: Self.params.url + "jars"
         });
 
-        uploadJarInput.on('filebatchuploadsuccess filebatchuploaderror', function(event, params) {
+        uploadJarInput.on('filebatchuploadsuccess', function(event, params) {
+            Self.notifySuccess('Uploaded jar');
             Self.enableScreen();
             uploadJarModal.modal('hide');
+
+            var response = params.response,
+                output = '',
+                duplicate = '';
+
+            duplicate = jarsTable.find('a[data-jar="'+response.name+'"]');
+            if(duplicate.length) {
+                duplicate.closest('tr').remove();
+            }
+            output += '<tr>' +
+                        '<td>'+ response.name  +'</td>' +
+                        '<td>'+ Self.computeJarSize(response.size) +'</td>' +
+                        '<td>'+ Self.convertTimestamp(response.timestamp) +'</td>' +
+                        '<td><a class="delete" data-jar="'+ response.name +'"><span class="glyphicon glyphicon-trash" aria-hidden="true"></span></a></td>' +
+                    '</tr>';
+
+            jarsTable.prepend(output);
         });
 
         uploadJarInput.on('filebatchuploaderror', function(event, data) {
             Self.notify('Could not upload jar');
-
+            Self.enableScreen();
+            uploadJarModal.modal('hide');
         });
 
 
@@ -499,10 +534,10 @@ var sparkJobTemplate = function () {
             uploadJarInput.fileinput('enable');
         });
 
-
-
-
         // end jars tab
+
+        navTabs.find('.active a').click();
+        Self.refreshJobs();
 
 
 
@@ -607,13 +642,60 @@ var sparkJobTemplate = function () {
             {message: msg},
             {
                 type: 'danger',
-                delay: 2000,
+                delay: 3000,
+                mouse_over: 'pause',
                 animate: {
-                    enter: 'animated fadeInRight',
-                    exit: 'animated fadeOutRight'
+                    enter: 'animated fadeInDown',
+                    exit: 'animated fadeOutUp'
                 }
             }
         );
+    },
+
+    Self.notifyInfo = function(msg) {
+        $.notify(
+            {message: msg},
+            {
+                type: 'info',
+                delay: 3000,
+                animate: {
+                    enter: 'animated fadeInDown',
+                    exit: 'animated fadeOutUp'
+                }
+            }
+        );
+    },
+
+    Self.notifySuccess = function(msg) {
+            $.notify(
+                {message: msg},
+                {
+                    type: 'success',
+                    delay: 3000,
+                    animate: {
+                        enter: 'animated fadeInDown',
+                        exit: 'animated fadeOutUp'
+                    }
+                }
+            );
+    },
+
+    Self.computeJarSize = function(bytes) {
+        var sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
+        if (bytes == 0) return 'n/a';
+        var i = parseInt(Math.floor(Math.log(bytes) / Math.log(1024)));
+        if (i == 0) return bytes + ' ' + sizes[i];
+        return (bytes / Math.pow(1024, i)).toFixed(1) + ' ' + sizes[i];
+    },
+
+    Self.refreshJobs = function() {
+        var jobsLk = navTabs.find('a[aria-controls="jobs"]');
+        var checkJobsTab = function () {
+            if(jobsLk.closest('.active').length) {
+                jobsLk.click();
+            }
+        }
+        var t = setInterval(checkJobsTab,3000);
     };
 };
 
@@ -622,7 +704,8 @@ $(function() {
     try {
         sparkJob = new sparkJobTemplate();
         sparkJob.init({
-            url: "http://10.3.22.104:8097/"
+            url: "http://10.3.22.104:8097/",
+            host: "http://10.3.22.104"
         });
     } catch (e) {
         errorHandler(e.message);

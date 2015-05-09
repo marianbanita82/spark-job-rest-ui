@@ -1,10 +1,8 @@
 @import url(http://fonts.googleapis.com/css?family=Raleway:400,700,300);
 $font-family-base: 'Raleway', sans-serif;
-// Import bootstrap and fontawesome
 @import "bootstrap";
-@import "font-awesome";
-//@import "animate.scss";
-@import "../../bootstrap-fileinput-master/css/fileinput.scss";
+@import "animate.scss";
+@import "fileinput.scss";
 
 * {
     outline: 0 !important;
@@ -16,22 +14,19 @@ $font-family-base: 'Raleway', sans-serif;
 .bootbox-body {
     word-wrap: break-word;
 }
-#wrapper {
-    padding: 40px 0;
-}
+
 body {
-    background: url(../img/halftone.png);
+    background: #f8f8f8;
 }
 
-#navTabs {
-    font-weight: bold;
+
+#navTabs .active a {
+    background: #eee;
+    color: #23527c;
 }
 
 #navContents {
-    border: solid #ddd;
-    border-width: 0 1px 1px;
-    padding: 20px;
-    background: #fff;
+    padding: 20px 0;
     table {
         border: solid #ddd;
         border-width: 0 0 1px;
@@ -73,4 +68,58 @@ table tr td:last-child {
     background: rgba(255,255,255,0.7);
     display: none;
 }
+
+
+
+
+/*!
+ * Start Bootstrap - SB Admin 2 Bootstrap Admin Theme (http://startbootstrap.com)
+ * Code licensed under the Apache License v2.0.
+ * For details, see http://www.apache.org/licenses/LICENSE-2.0.
+ */
+
+body {
+    background-color: #f8f8f8;
+}
+
+#wrapper {
+    width: 100%;
+}
+
+#page-wrapper {
+    padding: 0 15px;
+    background-color: #fff;
+}
+
+@media screen and (min-width:768px) {
+    #page-wrapper {
+        position: inherit;
+        margin: 0 0 0 250px;
+        padding: 0 30px;
+        border-left: 1px solid #e7e7e7;
+        min-height: calc(100vh - 51px);
+    }
+}
+
+.sidebar ul li {
+    border-bottom: 1px solid #e7e7e7;
+}
+
+@media screen and (min-width:768px) {
+    .sidebar {
+        z-index: 1;
+        position: absolute;
+        width: 250px;
+        margin-top: 51px;
+    }
+}
+
+
+
+
+
+
+
+
+
 
